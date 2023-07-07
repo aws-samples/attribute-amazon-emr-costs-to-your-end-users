@@ -1,0 +1,17 @@
+{
+  "yarn_url": "http://dummy.compute-1.amazonaws.com:8088/ws/v1/cluster/apps",
+  "tbl_applicationlogs_lz": "public.emr_applications_execution_log_lz",
+  "tbl_applicationlogs": "public.emr_applications_execution_log",
+  "tbl_emrcost": "public.emr_cluster_usage_cost",
+  "tbl_emrinstance_usage": "public.emr_cluster_instances_usage",
+  "emrcluster_id": "j-xxxxxxxxxx",
+  "emrcluster_name": "EMR_Cost_Measure",
+  "emrcluster_role": "dt-dna-shared",
+  "emrcluster_linkedaccount": "xxxxxxxxxxx",
+  "postgres_rds": {
+    "host": "xxxxxxxxx.amazonaws.com",
+    "dbname": "postgres",
+    "user": "postgresadmin"
+  },
+  "athenapostgressecret_id": "athenapostgressecret"
+}
