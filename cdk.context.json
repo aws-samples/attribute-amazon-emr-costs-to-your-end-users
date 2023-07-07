@@ -13,5 +13,10 @@
     "dbname": "postgres",
     "user": "postgresadmin"
   },
-  "athenapostgressecret_id": "athenapostgressecret"
+  "athenapostgressecret_id": "athenapostgressecret",
+  "vpc_id" : "xxxxxxxxx",
+  "vpc_subnets" : "[\"subnet-082816a60f7fea1bc\"]",
+  "sg_id" : "xxxxxxxxxx"
+
+
 }
