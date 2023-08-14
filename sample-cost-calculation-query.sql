@@ -7,7 +7,7 @@ queue, sum(vcore_seconds) ConsumedCPUSeconds, sum(distinct percentage_share) prc
 , sum(emr_cost) AS ComsumedAmount, sum(distinct emr_total_day_cost) AS TotalEMRClusterCostforOwlDQ
  
 from(
-select app_name, AppDateCollect as cal_cost_date,
+select lower(app_name) as app_name, AppDateCollect as cal_cost_date,
 queue, vcore_seconds,(shareper.vcore_seconds/shareper.emr_app_consumed_day_vcore_seconds)*100 as percentage_share,
 shareper.net_unblendedcost*((shareper.vcore_seconds/shareper.emr_app_consumed_day_vcore_seconds)*100)/100 as emr_cost,net_unblendedcost as emr_total_day_cost,
 shareper.runtime_seconds, memory_seconds , emr_allocated_vcore_seconds, emr_app_consumed_day_vcore_seconds as  emr_allapps_consumed_day_vcore_seconds,
@@ -49,4 +49,4 @@ and total_vcore.emr_app_consumed_day_vcore_seconds <>0
 group by  apps.AppDateCollect, apps.app_name, apps.queue, total_vcore.emr_app_consumed_day_vcore_seconds, day_emr_cost.net_unblendedcost, emr_allocated_vcore_seconds
 ) shareper
 )A
-group by 1,2,3
+group by 1,2,3 order by 1 desc
