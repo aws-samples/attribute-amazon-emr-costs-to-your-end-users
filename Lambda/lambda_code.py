@@ -37,6 +37,12 @@ InstanceDayRunSeconds=0
 
 def lambda_handler(event, context):
     
+    #====Read postgres credential from secrets manager====#
+    print("reading rds secrets")
+    secrets_resp = secrets_manager.get_secret_value(SecretId='athenapostgressecret')
+    secret = secrets_resp['SecretString']
+    secret = json.loads(secret)
+    
     
     #====Read SSM parameter store to fetch environment vairables====#
     print("Reading SSM Parameter Store ")
@@ -77,13 +83,6 @@ def lambda_handler(event, context):
     emr_clustername=ssm_param_json["emrcluster_name"] #EMR clsuter name for which cost report need to be generated
     emrcluster_role=ssm_param_json["emrcluster_role"] #EMR cluster access role 
     emrcluster_linkedaccount=ssm_param_json["emrcluster_linkedaccount"] #EMR cluster AWS account id
-    athenapostgressecret=ssm_param_json["athenapostgressecret_id"] #RDS secretid
-    
-    #====Read postgres credential from secrets manager====#
-    print("reading rds secrets")
-    secrets_resp = secrets_manager.get_secret_value(SecretId=athenapostgressecret)
-    secret = secrets_resp['SecretString']
-    secret = json.loads(secret)
     
     postgres_user = secret["username"]#UserName
     postgres_password = secret["password"]#password
@@ -242,7 +241,7 @@ def emr_applications_execution(startdate,enddate):
     
             try:
                 print("loading final table now...")    
-                final_insert_query = "insert into "+table_emrlogs+\
+                final_insert_query = "insert into "+table_emrlogs+"(appdatecollect,app_id,app_name,queue,job_state,job_status,starttime,endtime,runtime_seconds,vcore_seconds,memory_seconds,running_containers,rm_clusterid,loadtime)"\
                             " select  endtime::date ,app_id, app_name,queue,\
                             job_state, job_status, starttime::timestamp,endtime::timestamp,runtime_seconds, vcore_seconds,memory_seconds,running_containers,rm_clusterid,\
                             NOW()::timestamp as loaddatetime\
