@@ -29,8 +29,6 @@ CREATE TABLE public.emr_applications_execution_log (
 	memory_seconds numeric NULL,
 	running_containers int4 NULL,
 	rm_clusterid varchar(100) NULL,
-	request_id varchar(100) NULL,
-	owldq_job_uuid varchar(200) NULL,
 	loadtime timestamp NULL
 );
 
