@@ -38,10 +38,10 @@ InstanceDayRunSeconds=0
 def lambda_handler(event, context):
     
     #====Read postgres credential from secrets manager====#
-    print("reading rds secrets")
-    secrets_resp = secrets_manager.get_secret_value(SecretId='athenapostgressecret')
-    secret = secrets_resp['SecretString']
-    secret = json.loads(secret)
+    #print("reading rds secrets")
+    #secrets_resp = secrets_manager.get_secret_value(SecretId='athenapostgressecret')
+    #secret = secrets_resp['SecretString']
+    #secret = json.loads(secret)
     
     
     #====Read SSM parameter store to fetch environment vairables====#
@@ -75,6 +75,7 @@ def lambda_handler(event, context):
     print(url)
     postgres_host = ssm_param_json["postgres_rds"]["host"] #Postgres host to store usage/cost data
     postgres_db = ssm_param_json["postgres_rds"]["dbname"] #database name
+    rds_secretid = ssm_param_json["postgres_rds"]["secretid"] #RDS Postgres login password secret id
     table_emrlogs_lz = ssm_param_json["tbl_applicationlogs_lz"] #Landing zone table to capture daily application jobs usage data from yarn Resource manager
     table_emrlogs = ssm_param_json["tbl_applicationlogs"] #Main table to capture daily application jobs usage data from yarn Resource manager
     emr_cost_table_name= ssm_param_json["tbl_emrcost"] #Store total daily cost incurred for complete EMR cluster
@@ -84,8 +85,13 @@ def lambda_handler(event, context):
     emrcluster_role=ssm_param_json["emrcluster_role"] #EMR cluster access role 
     emrcluster_linkedaccount=ssm_param_json["emrcluster_linkedaccount"] #EMR cluster AWS account id
     
-    postgres_user = secret["username"]#UserName
-    postgres_password = secret["password"]#password
+    #====Read postgres credential from secrets manager====#
+    print("reading rds secrets")
+    secrets_resp = secrets_manager.get_secret_value(SecretId=rds_secretid)
+    secret = secrets_resp['SecretString']
+    secret = json.loads(secret)
+    postgres_user = secret["username"]#RDS Postgres UserName
+    postgres_password = secret["password"]# RDS Postgres Password
     
     print('before db connect')
     conn = psycopg2.connect("host="+postgres_host+" dbname="+postgres_db+" user="+postgres_user+" password="+postgres_password)
