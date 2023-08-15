@@ -1,7 +1,7 @@
 select cal_cost_date,case WHEN app_name like 'fin%' then 'Finance' 
 when  app_name like 'hr%'then 'HR'
 when app_name like 'trs%'then 'Treasury'
-when app_name like 'marketing%'then 'Marketing'
+when app_name like 'mkt%'then 'Marketing'
 else 'Others' end Application_Name, 
 queue, sum(vcore_seconds) ConsumedCPUSeconds, sum(distinct percentage_share) prctConsumed
 , sum(emr_cost) AS ComsumedAmount, sum(distinct emr_total_day_cost) AS TotalEMRClusterCostforOwlDQ
