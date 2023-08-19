@@ -11,9 +11,9 @@
   "postgres_rds": {
     "host": "xxxxxxxxx.amazonaws.com",
     "dbname": "postgres",
-    "user": "postgresadmin"
+    "user": "postgresadmin",
+    "secretid":"postgressecretid"
   },
-  "postgressecret_id": "postgressecret",
   "vpc_id" : "xxxxxxxxx",
   "vpc_subnets" : "[\"subnet-082816a60f7fea1bc\"]",
   "sg_id" : "xxxxxxxxxx"

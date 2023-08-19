@@ -25,9 +25,8 @@ class CdkEMRCostStack(Stack):
         "emrcluster_name": "'+self.node.try_get_context("emrcluster_name")+'", \
         "emrcluster_role": "'+self.node.try_get_context("emrcluster_role")+'", \
         "emrcluster_linkedaccount": "'+self.node.try_get_context("emrcluster_linkedaccount")+'", \
-        "postgres_rds": '+str(self.node.try_get_context("postgres_rds"))+',\
-        "athenapostgressecret_id" : "'+self.node.try_get_context("athenapostgressecret_id")+'"\
-        }'
+        "postgres_rds": '+str(self.node.try_get_context("postgres_rds"))+'"}'
+        
         ssm_parameter = ssm_parameter.replace("'",'"')
         
         # Create SSM parameter
@@ -117,15 +116,15 @@ class CdkEMRCostStack(Stack):
         )
         
         #VPC details for lambda
-        vpc_id = "vpc-0ff0f63e4bf34a784"
-        subnet_ids = ["subnet-082816a60f7fea1bc", "subnet-0fd5626aa0b732cd2"]
+        vpc_id = self.node.try_get_context("vpc_id") #"vpc-0ff0f63e4bf34a784"
+        subnet_ids = self.node.try_get_context("vpc_subnets") #["subnet-082816a60f7fea1bc", "subnet-0fd5626aa0b732cd2"]
+        sg_id = self.node.try_get_context("sg_id") #"sg-00040d84b09508cae"
         
         subnets = list()
         for subnet_id in subnet_ids:
             subnets.append(_ec2.Subnet.from_subnet_attributes(self, subnet_id.replace("-", "").replace("_", "").replace(" ", ""), subnet_id=subnet_id))
         
         vpc_subnets = _ec2.SubnetSelection(subnets=subnets)
-        sg_id = "sg-00040d84b09508cae"
         sg = _ec2.SecurityGroup.from_security_group_id(self, "MySG", sg_id)
         
         
