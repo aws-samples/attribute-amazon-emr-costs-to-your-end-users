@@ -100,20 +100,20 @@ class CdkEMRCostStack(Stack):
            )'''
         
         # Create a layer version for requests
-        requests_layers = _lambda.LayerVersion(
-            self, 'RequestsLambdaLayer',
-            code=_lambda.Code.from_asset('Lambda/layers/requests'),
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_8],
-            description='requests Library'
-        )
+        #requests_layers = _lambda.LayerVersion(
+        #    self, 'RequestsLambdaLayer',
+        #    code=_lambda.Code.from_asset('Lambda/layers/requests'),
+        #    compatible_runtimes=[_lambda.Runtime.PYTHON_3_8],
+        #    description='requests Library'
+        #)
         
         # Create a layer version
-        psycopg2_layers = _lambda.LayerVersion(
-            self, 'Psycopg2LambdaLayer',
-            code=_lambda.Code.from_asset('Lambda/layers/psycopg2'),
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_8],
-            description='psycopg2 Library'
-        )
+        #psycopg2_layers = _lambda.LayerVersion(
+        #    self, 'Psycopg2LambdaLayer',
+        #    code=_lambda.Code.from_asset('Lambda/layers/psycopg2'),
+        #    compatible_runtimes=[_lambda.Runtime.PYTHON_3_8],
+        #    description='psycopg2 Library'
+        #)
         
         #VPC details for lambda
         vpc_id = self.node.try_get_context("vpc_id") #"vpc-0ff0f63e4bf34a784"
@@ -131,7 +131,7 @@ class CdkEMRCostStack(Stack):
         my_lambda = _lambda.Function(
             self, 'EMRCostMeasure',
             runtime=_lambda.Runtime.PYTHON_3_8,
-            layers=[requests_layers,psycopg2_layers],
+            #layers=[requests_layers,psycopg2_layers],
             code=_lambda.Code.from_asset('Lambda'),
             handler='lambda_code.lambda_handler',
             role=EMRCostMeasureCaptureRole,
