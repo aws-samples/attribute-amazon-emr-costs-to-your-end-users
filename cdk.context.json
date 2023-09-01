@@ -15,7 +15,7 @@
     "secretid":"postgressecretid"
   },
   "vpc_id" : "xxxxxxxxx",
-  "vpc_subnets" : "[\"subnet-082816a60f7fea1bc\"]",
+  "vpc_subnets" : "subnet-082816a60f7fea1bc",
   "sg_id" : "xxxxxxxxxx"
 
 

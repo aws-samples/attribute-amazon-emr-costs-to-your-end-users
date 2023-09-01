@@ -1,5 +1,5 @@
 from aws_cdk import (
-    # Duration,
+    Duration,
     Stack,
     aws_lambda as _lambda,
     aws_iam as _iam,
@@ -89,6 +89,18 @@ class CdkEMRCostStack(Stack):
             resources=["*"],
             )
         EMRCostMeasureCaptureRole.add_to_policy(vpc_policy)
+
+        #Create policy for cloudwatch loggroup
+        cw_policy = _iam.PolicyStatement(
+            actions=[
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams"
+            ],
+            resources=["arn:aws:logs:*:*:*"],
+            )
+        EMRCostMeasureCaptureRole.add_to_policy(cw_policy)
         
         # Here define a Lambda Layer 
         '''requests_layers = _alp.PythonLayerVersion(
@@ -117,7 +129,10 @@ class CdkEMRCostStack(Stack):
         
         #VPC details for lambda
         vpc_id = self.node.try_get_context("vpc_id") #"vpc-0ff0f63e4bf34a784"
-        subnet_ids = self.node.try_get_context("vpc_subnets") #["subnet-082816a60f7fea1bc", "subnet-0fd5626aa0b732cd2"]
+        #subnet_ids = ["subnet-14c6437f"] #self.node.try_get_context("vpc_subnets")
+        subnet_ids = {self.node.try_get_context("vpc_subnets")}
+        print('========subnet_ids=====',subnet_ids)
+        
         sg_id = self.node.try_get_context("sg_id") #"sg-00040d84b09508cae"
         
         subnets = list()
@@ -133,10 +148,11 @@ class CdkEMRCostStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_8,
             #layers=[requests_layers,psycopg2_layers],
             code=_lambda.Code.from_asset('Lambda'),
-            handler='lambda_code.lambda_handler',
+            handler='lambda_function.lambda_handler',
             role=EMRCostMeasureCaptureRole,
             vpc=_ec2.Vpc.from_lookup(self, "MyVpc", vpc_id=vpc_id),
             vpc_subnets=vpc_subnets,
+            timeout=Duration.minutes(5),
             #security_groups=[sg]
             #name="l_emr_cost_measure_capture"
             allow_public_subnet=True
