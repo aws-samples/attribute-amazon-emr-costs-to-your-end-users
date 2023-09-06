@@ -101,6 +101,15 @@ class CdkEMRCostStack(Stack):
             resources=["arn:aws:logs:*:*:*"],
             )
         EMRCostMeasureCaptureRole.add_to_policy(cw_policy)
+
+        #Create policy for secretsmanager access
+        secretsmanager_policy = _iam.PolicyStatement(
+            actions=[
+                "secretsmanager:GetSecretValue"
+            ],
+            resources=["arn:aws:secretsmanager:*:*:*"],
+            )
+        EMRCostMeasureCaptureRole.add_to_policy(secretsmanager_policy)
         
         # Here define a Lambda Layer 
         '''requests_layers = _alp.PythonLayerVersion(
