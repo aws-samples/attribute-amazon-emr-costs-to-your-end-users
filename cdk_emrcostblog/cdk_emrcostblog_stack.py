@@ -25,7 +25,7 @@ class CdkEMRCostStack(Stack):
         "emrcluster_name": "'+self.node.try_get_context("emrcluster_name")+'", \
         "emrcluster_role": "'+self.node.try_get_context("emrcluster_role")+'", \
         "emrcluster_linkedaccount": "'+self.node.try_get_context("emrcluster_linkedaccount")+'", \
-        "postgres_rds": '+str(self.node.try_get_context("postgres_rds"))+'"}'
+        "postgres_rds": '+str(self.node.try_get_context("postgres_rds"))+'}'
         
         ssm_parameter = ssm_parameter.replace("'",'"')
         
