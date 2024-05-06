@@ -46,6 +46,7 @@ git clone git@github.com:aws-samples/amazon-emr-usage-cost-chargeback.git
     14. sg_id – Corresponding Security group id.
 
 The following is a sample cdk.context.json file after being populated with the parameters
+```
 {
 "yarn_url": "http://dummy.compute-1.amazonaws.com:8088/ws/v1/cluster/apps",
 "tbl_applicationlogs_lz": "public.emr_applications_execution_log_lz",
@@ -66,7 +67,8 @@ The following is a sample cdk.context.json file after being populated with the p
 "vpc_subnets" : "subnet-082816a60f7fea1bc",
 "sg_id" : "xxxxxxxxxx"
 }
-   Instructions needed to setup cloud 9 at least some pointers to create Enviornment
+```
+#   Instructions needed to setup cloud 9 at least some pointers to create Enviornment
 
 1. Go to AWS Cloud9 and upload the project folder via File→Upload Local Files.
 2. Deploy the AWS CDK stack with the following code:
