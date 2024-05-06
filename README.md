@@ -1,58 +1,77 @@
 
-# Welcome to your CDK Python project!
+# How to attribute Amazon EMR costs to your end-users
 
-This is a blank project for CDK development with Python.
+This project is about a chargeback model that can be used to track and allocate the costs of Spark workloads running on Amazon EMR on EC2 clusters. We describe an approach that assigns Amazon EMR costs to different jobs, teams, or lines of business. 
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+This approach can help you evaluate and improve the cost efficiency of your EMR clusters. It can also be used to allocate costs to different lines of business, which can help you track the return on investment for your Spark workloads.
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+The solution is designed to help you track the cost of your Spark applications running on EMR on EC2. It can help you identify cost optimizations and improve the cost efficiency of your EMR clusters.
 
-To manually create a virtualenv on MacOS and Linux:
+In this solution,  we use CDK to deploy a Lambda function, RDS Postgres 3 data model tables and a QuickSight dashboard to track EMR cluster cost at the job, team, or business unit level.
 
+The Lambda function uses YARN resource manager APIs to extract the vCore-seconds, memory MB-seconds, and storage GB-seconds consumed by each Spark application that ran on your EMR cluster. It also extracts the daily cost of EMR, including EC2, using the AWS Cost Explorer Boto3 APIs. Lastly, it extracts the EC2 usage details using the EMR and EC2 Boto3 APIs.
+
+The process runs daily extracting the previous day’s data and stores it in a Postgres RDS table. The historical data in the Postgres tables need to be purged based on the need. 
+
+# How to Deploy the Solution
+
+# 1. Create RDS Tables
+
+Please create following tables by loging into postgres rds manually into public schema. -  emr-cost-rds-tables-ddl.sql .  
+Use dbeaver /SQL clients to connect to RDS instance and validate tables have been created.
+
+# 2. Deploy AWS CDK stacks
+
+Complete the following steps to deploy your resources using the AWS CDK:
+
+1. Clone the GitHub repo:
 ```
-$ python3 -m venv .venv
-```
-
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
-
-```
-$ source .venv/bin/activate
-```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
+git clone git@github.com:aws-samples/amazon-emr-usage-cost-chargeback.git
 ```
 
-Once the virtualenv is activated, you can install the required dependencies.
+1. Update the following the environment parameters in cdk.context.json (this file can be found in the main directory):
+    1. yarn_url – yarn url to read job execution logs and metrics. This url should be accessible within the vpc where lambda would be deployed.
+    2. tbl_applicationlogs_lz - RDS temp table to store EMR application execution logs
+    3. tbl_applicationlogs - RDS table to store EMR application execution logs
+    4. tbl_emrcost - RDS table to capture daily EMR cluster usage cost
+    5. tbl_emrinstance_usage - RDS table to store EMR cluster instances usage info
+    6. emrcluster_id - EMR cluster instance id
+    7. emrcluster_name - EMR cluster name
+    8. emrcluster_role - IAM role assigned to EMR cluster
+    9. emrcluster_linkedaccount - Account id under which EMR cluster is running
+    10. postgres_rds - Postgres RDS connection detail
+    11. athenapostgressecret_id – The name of the Secrets Manager key that stores the RDS Postgres database credentials
+    12. vpc_id – VPC id in which EMR cluster is configured and in which cost metering lambda would be deployed.
+    13. vpc_subnets – Subnets associated with the VPC
+    14. sg_id – Corresponding Security group id.
 
+The following is a sample cdk.context.json file after being populated with the parameters
+{
+"yarn_url": "http://dummy.compute-1.amazonaws.com:8088/ws/v1/cluster/apps",
+"tbl_applicationlogs_lz": "public.emr_applications_execution_log_lz",
+"tbl_applicationlogs": "public.emr_applications_execution_log",
+"tbl_emrcost": "public.emr_cluster_usage_cost",
+"tbl_emrinstance_usage": "public.emr_cluster_instances_usage",
+"emrcluster_id": "j-xxxxxxxxxx",
+"emrcluster_name": "EMR_Cost_Measure",
+"emrcluster_role": "dt-dna-shared",
+"emrcluster_linkedaccount": "xxxxxxxxxxx",
+"postgres_rds": {
+"host": "xxxxxxxxx.amazonaws.com",
+"dbname": "postgres",
+"user": "postgresadmin",
+"secretid":"postgressecretid"
+},
+"vpc_id" : "xxxxxxxxx",
+"vpc_subnets" : "subnet-082816a60f7fea1bc",
+"sg_id" : "xxxxxxxxxx"
+}
+   Instructions needed to setup cloud 9 at least some pointers to create Enviornment
+
+1. Go to AWS Cloud9 and upload the project folder via File→Upload Local Files.
+2. Deploy the AWS CDK stack with the following code:
 ```
-$ pip install -r requirements.txt
+cd amazon-emr-usage-cost-chargeback/
+pip install -r requirements.txt
+cdk deploy --all
 ```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
-```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
-
-## Useful commands
-
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
