@@ -26,7 +26,7 @@ Complete the following steps to deploy your resources using the AWS CDK:
 
 1. Clone the GitHub repo:
 ```
-git clone git@github.com:aws-samples/amazon-emr-usage-cost-chargeback.git
+git clone git@github.com:aws-samples/attribute-amazon-emr-costs-to-your-end-users.git
 ```
 
 1. Update the following the environment parameters in cdk.context.json (this file can be found in the main directory):
@@ -73,7 +73,7 @@ The following is a sample cdk.context.json file after being populated with the p
 1. Go to AWS Cloud9 and upload the project folder via File→Upload Local Files.
 2. Deploy the AWS CDK stack with the following code:
 ```
-cd amazon-emr-usage-cost-chargeback/
+cd attribute-amazon-emr-costs-to-your-end-users/
 pip install -r requirements.txt
 cdk deploy --all
 ```
