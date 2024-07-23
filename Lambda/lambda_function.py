@@ -7,7 +7,6 @@ from pprint import pprint
 from datetime import datetime, date, timedelta
 from botocore.errorfactory import ClientError
 import psycopg2
-#from psycopg2.extras import RealDictCursor
 
 ce_client = boto3.client('ce')
 ssm=boto3.client('ssm')
@@ -36,14 +35,7 @@ Difference_Sec=0
 InstanceDayRunSeconds=0
 
 def lambda_handler(event, context):
-    
-    #====Read postgres credential from secrets manager====#
-    #print("reading rds secrets")
-    #secrets_resp = secrets_manager.get_secret_value(SecretId='athenapostgressecret')
-    #secret = secrets_resp['SecretString']
-    #secret = json.loads(secret)
-    
-    
+
     #====Read SSM parameter store to fetch environment vairables====#
     print("Reading SSM Parameter Store ")
     ssm_response = ssm.get_parameters(Names=['cost_metering_parameters'])
@@ -101,6 +93,8 @@ def lambda_handler(event, context):
 ##==================================================================================================
 # Logic to initiate variables to avoid duplicate data load on same day
 ##==================================================================================================   
+    initial_datetime = datetime.now() - timedelta(90)
+    initial_date = datetime.strftime(initial_datetime, '%Y-%m-%d')
     today_date = datetime.today().strftime('%Y-%m-%d')
     yesterday = datetime.now() - timedelta(1)
     yesterday_date = datetime.strftime(yesterday, '%Y-%m-%d')
@@ -108,7 +102,7 @@ def lambda_handler(event, context):
     cur.execute('select max(AppDateCollect)::varchar from '+table_emrlogs)
     max_AppDateCollect = cur.fetchone()[0]
     if max_AppDateCollect == None:
-        max_AppDateCollect = '2023-01-19'
+        max_AppDateCollect = initial_date
 
     if yesterday_date == max_AppDateCollect:
         yesterday_minusone = datetime.now() - timedelta(2)
@@ -119,7 +113,7 @@ def lambda_handler(event, context):
     max_InstanceDateCollect = cur.fetchone()[0]
     
     if max_InstanceDateCollect == None:
-        max_InstanceDateCollect = '2023-01-19'
+        max_InstanceDateCollect = initial_date
     
     if str(yesterday_date) == str(max_InstanceDateCollect):
         print('-----------Yesterdays data is already there for instance table')
@@ -130,7 +124,7 @@ def lambda_handler(event, context):
     max_CostDateCollect = cur.fetchone()[0]
     
     if max_CostDateCollect == None:
-        max_CostDateCollect = '2023-01-19'
+        max_CostDateCollect = initial_date
     
     print("max_AppDateCollect -->",max_AppDateCollect)
     print("max_CostDateCollect -->",max_CostDateCollect)
@@ -194,8 +188,6 @@ def emr_applications_execution(startdate,enddate):
     cur.execute("commit")
     print("Landing zone table deletion complete")
     print("Deletion complete")
-    # except ClientError:
-    #     #logger.error("Error occured while deleting from table "+table_emrlogs_lz)
         
         
     starttime_ts = ""
@@ -223,7 +215,6 @@ def emr_applications_execution(startdate,enddate):
             
         
             except ClientError:
-                #logger.error("Error occured while inserting into table "+table_emrlogs_lz)
                 print("error catch")
     
             print("Landing zone data load completd, fetching rowcount...")
@@ -243,7 +234,6 @@ def emr_applications_execution(startdate,enddate):
             cur.execute("commit")
             print("Main Table deletion complete")
             # except ClientError:
-            #     #logger.error("Error occured while deleting from table "+table_emrlogs)
     
             try:
                 print("loading final table now...")    
@@ -261,7 +251,6 @@ def emr_applications_execution(startdate,enddate):
                 print("Values Inserted in final table: "+table_emrlogs)
         
             except ClientError:
-                #logger.error("Error occured while inserting into table "+table_emrlogs)
                 print("catch error")
     else:
         print("No Application logs found for the timeframe - ['"+startdate+"', '"+enddate+"']")
@@ -339,7 +328,7 @@ def emr_cluster_instances_usage(startdate,enddate):
                         #print("Running for:",InstanceId, "Start:",startdate,"Date collect is:",enddate)
                         #print("Running for: "+InstanceId+" with State: "+ InstanceState+" and Fleet Type "+InstanceInstanceFleetType+" Created On:"+str(InstanceCreationDateTime))
                         delta = timedelta(days=1)
-                        s_date += delta#as data is aklready loaded for start date value
+                        s_date += delta#as data is already loaded for start date value
                         while s_date<=e_date:
                             v_load_flag = False
                             InstanceDateCollect=s_date
@@ -402,16 +391,13 @@ def emr_cluster_instances_usage(startdate,enddate):
                                     #print(str(InstanceDateCollect)+"<==>"+region+"<==>"+emr_cluster_id+"<==>"+InstanceInstanceFleetType+"<==>"+InstanceId+"<==>"+InstanceInstanceType+"<==>"+InstanceMarket+"<==>"+str(InstanceCreationDateTime)+"<==>"+str(InstanceEndDateTime)+"<==>"+str(InstanceVcpuCount)+"<==>"+str(InstanceSizeInMiB)+"<==>"+InstanceState+"<==>"+str(InstanceDayRunSeconds))
                             
                             except ClientError:
-                                #logger.error("Error occured while inserting into table "+emr_table_name)
                                 print("catch-error")
                             s_date += delta
                             
         else:
             print("Cluster is not in RUNNING or WAITING state")
-            #logger.warning("Cluster is not in RUNNING or WAITING state")
         
     except ClientError as e:
-        #logger.error("Error occured while calling EMR cluster "+emr_clustername)
         print(str(e))
 
 ##==================================================================================================
@@ -433,7 +419,6 @@ def emr_cluster_cost_usage(startdate,enddate):
     cur.execute("commit")
     print("Deletion complete")
     
-    #enddate = '2023-03-01'
         
     try:
         print("Reading CostExplorer data")
@@ -448,11 +433,8 @@ def emr_cluster_cost_usage(startdate,enddate):
                     "And": [ 
                             {"Dimensions": { "Key": "SERVICE", "Values": [ "Amazon Elastic MapReduce","Amazon Elastic Compute Cloud - Compute" ] }}
                             , 
-                            #{"Tags": { "Key": "Role", "Values": [emrcluster_role] } } 
-                            #{"Tags": [{ "Key": "EMR_Objective", "Values": ["Cost"] },{ "Key": "Env", "Values": ["Isengard"] }]} 
+                            
                             {"Tags": { "Key": "EMR_Objective", "Values": ["Cost"] } }
-                            #,
-                            #{"Tags": { "Key": "Env", "Values": ["Isengard"] } }
                             ,
                             {"Dimensions": { "Key": "LINKED_ACCOUNT", "Values": [emrcluster_linkedaccount] }}
                                                 ]
@@ -485,7 +467,6 @@ def emr_cluster_cost_usage(startdate,enddate):
                             print("--"+StartDate+"<==>"+EndDate+"<==>"+serviceName+"<==>"+serviceTag+"<==>"+NetUnblendedCost+"<==>"+NetUnblendedCostUnit+"<==>"+emr_cluster_id+"<==>"+emr_clustername+"<==>"+loaddatetime)
                             
                         except ClientError:
-                            #logger.error("Error occured while inserting into table "+emr_cost_table_name)
                             print("catch-error")
             else:
                 
@@ -495,5 +476,4 @@ def emr_cluster_cost_usage(startdate,enddate):
                 print("--",StartDate,"<==>",EndDate,"<==>",NetUnblendedCost,"<==>",NetUnblendedCostUnit)
                 
     except ClientError as e:
-        #logger.error("Error occured while getting cost and usage details from Cost explorer")    
         print(str(e))
