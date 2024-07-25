@@ -130,7 +130,7 @@ class CdkEMRCostStack(Stack):
         
         my_lambda = _lambda.Function(
             self, 'EMRCostMeasure',
-            runtime=_lambda.Runtime.PYTHON_3_8,
+            runtime=_lambda.Runtime.PYTHON_3_12,
             code=_lambda.Code.from_asset('Lambda'),
             handler='lambda_function.lambda_handler',
             role=EMRCostMeasureCaptureRole,
