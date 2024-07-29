@@ -8,10 +8,12 @@ from datetime import datetime, date, timedelta
 from botocore.errorfactory import ClientError
 import psycopg2
 
+
+region='us-east-1'
 ce_client = boto3.client('ce')
 ssm=boto3.client('ssm')
-emr_client = boto3.client('emr','us-east-1')
-ec2 = boto3.client('ec2','us-east-1')
+emr_client = boto3.client('emr',region)
+ec2 = boto3.client('ec2',region)
 secrets_manager = boto3.client('secretsmanager')
 
 url = ''
@@ -28,7 +30,6 @@ emrcluster_role= ''
 emrcluster_linkedaccount= ''
 cur = ''
 
-region='us-east-1'
 loaddatetime = str(datetime.today())
 CostType="Daily"
 Difference_Sec=0
