@@ -1,4 +1,5 @@
 
+import os
 import requests
 import json
 import time
@@ -8,10 +9,9 @@ from datetime import datetime, date, timedelta
 from botocore.errorfactory import ClientError
 import psycopg2
 
-
-region='us-east-1'
+region = os.environ['AWS_REGION']
 ce_client = boto3.client('ce')
-ssm=boto3.client('ssm')
+ssm=boto3.client('ssm',region)
 emr_client = boto3.client('emr',region)
 ec2 = boto3.client('ec2',region)
 secrets_manager = boto3.client('secretsmanager')
@@ -86,9 +86,6 @@ def lambda_handler(event, context):
     postgres_user = secret["username"]#RDS Postgres UserName
     postgres_password = secret["password"]# RDS Postgres Password
     
-    print('before db connect')
-    conn = psycopg2.connect("host="+postgres_host+" dbname="+postgres_db+" user="+postgres_user+" password="+postgres_password)
-    cur = conn.cursor()
 
     
 ##==================================================================================================
@@ -99,7 +96,14 @@ def lambda_handler(event, context):
     today_date = datetime.today().strftime('%Y-%m-%d')
     yesterday = datetime.now() - timedelta(1)
     yesterday_date = datetime.strftime(yesterday, '%Y-%m-%d')
-
+    
+    print("initial_date-->",initial_date)
+    print("today_date-->",today_date)
+    print("yesterday_date-->",yesterday_date)
+    
+    print('before db connect')
+    conn = psycopg2.connect("host="+postgres_host+" dbname="+postgres_db+" user="+postgres_user+" password="+postgres_password)
+    cur = conn.cursor()
     cur.execute('select max(AppDateCollect)::varchar from '+table_emrlogs)
     max_AppDateCollect = cur.fetchone()[0]
     if max_AppDateCollect == None:
