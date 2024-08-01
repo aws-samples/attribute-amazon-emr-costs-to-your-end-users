@@ -84,6 +84,7 @@ class CdkEMRCostStack(Stack):
                 "ec2:CreateNetworkInterface",
                 "ec2:DeleteNetworkInterface",
                 "ec2:DescribeInstances",
+                "ec2:DescribeInstanceTypes",
                 "ec2:AttachNetworkInterface"
             ],
             resources=["*"],
