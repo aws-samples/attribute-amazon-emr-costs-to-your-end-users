@@ -26,6 +26,8 @@ emr_cost_table_name= ''
 emr_table_name= ''
 emr_cluster_id= ''
 emr_clustername= ''
+emr_clustertag= ''
+emr_clustertag_value= ''
 emrcluster_role= ''
 emrcluster_linkedaccount= ''
 cur = ''
@@ -55,6 +57,8 @@ def lambda_handler(event, context):
     global emr_table_name
     global emr_cluster_id
     global emr_clustername
+    global emr_clustertag
+    global emr_clustertag_value
     global emrcluster_role
     global emrcluster_linkedaccount
     global cur
@@ -75,6 +79,8 @@ def lambda_handler(event, context):
     emr_table_name=ssm_param_json["tbl_emrinstance_usage"] #Daily EMR cluster usage data
     emr_cluster_id=ssm_param_json["emrcluster_id"] # EMR clsuterid for which cost report need to be generated
     emr_clustername=ssm_param_json["emrcluster_name"] #EMR clsuter name for which cost report need to be generated
+    emr_clustertag=ssm_param_json["emrcluster_tag"] #EMR clsuter tag for which cost report need to be generated
+    emr_clustertag_value=ssm_param_json["emrcluster_tag_value"] #EMR clsuter tag value for which cost report need to be generated
     emrcluster_role=ssm_param_json["emrcluster_role"] #EMR cluster access role 
     emrcluster_linkedaccount=ssm_param_json["emrcluster_linkedaccount"] #EMR cluster AWS account id
     
@@ -281,9 +287,7 @@ def emr_cluster_instances_usage(startdate,enddate):
         emrClusterStatus=emrdescribe['Cluster']['Status']['State']
         emrClusterName=emrdescribe['Cluster']['Name']
         emrClusterTags=emrdescribe['Cluster']['Tags']
-        for tag in emrClusterTags:
-            if tag['Key']=='CostCenter' and tag['Value']=='GEHC':
-                print(tag['Key'],"<==>", tag['Value'])
+        
         if emrClusterStatus=='RUNNING' or emrClusterStatus=='WAITING':
             emrInstanceCollectionType=emrdescribe['Cluster']['InstanceCollectionType'] ##INSTANCE_FLEET ##INSTANCE_GROUP
             
@@ -439,13 +443,13 @@ def emr_cluster_cost_usage(startdate,enddate):
                             {"Dimensions": { "Key": "SERVICE", "Values": [ "Amazon Elastic MapReduce","Amazon Elastic Compute Cloud - Compute" ] }}
                             , 
                             
-                            {"Tags": { "Key": "EMR_Objective", "Values": ["Cost"] } }
+                            {"Tags": { "Key": emr_clustertag, "Values": [emr_clustertag_value] } }
                             ,
                             {"Dimensions": { "Key": "LINKED_ACCOUNT", "Values": [emrcluster_linkedaccount] }}
                                                 ]
                   },
             GroupBy=[ {"Type":"DIMENSION","Key":"SERVICE"},
-                      {"Type":"TAG","Key":"EMR_Objective"} ]
+                      {"Type":"TAG","Key":emr_clustertag} ]
         )
             
         print(response['ResultsByTime'])

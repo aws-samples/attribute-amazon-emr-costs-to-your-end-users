@@ -5,17 +5,19 @@
   "tbl_emrcost": "public.emr_cluster_usage_cost",
   "tbl_emrinstance_usage": "public.emr_cluster_instances_usage",
   "emrcluster_id": "j-xxxxxxxxxx",
-  "emrcluster_name": "EMR_Cost_Measure",
-  "emrcluster_role": "dt-dna-shared",
+  "emrcluster_name": "EMRClusterName",
+  "emrcluster_tag": "EMRClusterTag",
+  "emrcluster_tag_value": "EMRClusterUniqueTagValue",
+  "emrcluster_role": "EMRClusterServiceRole",
   "emrcluster_linkedaccount": "xxxxxxxxxxx",
   "postgres_rds": {
     "host": "xxxxxxxxx.amazonaws.com",
-    "dbname": "postgres",
-    "user": "postgresadmin",
-    "secretid":"postgressecretid"
+    "dbname": "dbname",
+    "user": "username",
+    "secretid":"DatabaseUserSecretID"
   },
   "vpc_id" : "xxxxxxxxx",
-  "vpc_subnets" : "subnet-082816a60f7fea1bc",
+  "vpc_subnets" : "subnet-xxxxxxxxxxx",
   "sg_id" : "xxxxxxxxxx"
 
 

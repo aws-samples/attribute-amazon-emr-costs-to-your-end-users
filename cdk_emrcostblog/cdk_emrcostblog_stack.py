@@ -23,6 +23,8 @@ class CdkEMRCostStack(Stack):
         "tbl_emrinstance_usage": "'+self.node.try_get_context("tbl_emrinstance_usage")+'", \
         "emrcluster_id": "'+self.node.try_get_context("emrcluster_id")+'", \
         "emrcluster_name": "'+self.node.try_get_context("emrcluster_name")+'", \
+        "emrcluster_tag": "'+self.node.try_get_context("emrcluster_tag")+'", \
+        "emrcluster_tag_value": "'+self.node.try_get_context("emrcluster_tag_value")+'", \
         "emrcluster_role": "'+self.node.try_get_context("emrcluster_role")+'", \
         "emrcluster_linkedaccount": "'+self.node.try_get_context("emrcluster_linkedaccount")+'", \
         "postgres_rds": '+str(self.node.try_get_context("postgres_rds"))+'}'
@@ -117,7 +119,7 @@ class CdkEMRCostStack(Stack):
         #VPC details for lambda
         vpc_id = self.node.try_get_context("vpc_id") 
         subnet_ids = {self.node.try_get_context("vpc_subnets")}
-        print('========subnet_ids=====',subnet_ids)
+        print('========subnet_ids=====>',subnet_ids)
         
         sg_id = self.node.try_get_context("sg_id") 
         
