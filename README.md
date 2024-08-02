@@ -1,4 +1,4 @@
-
+![image](https://github.com/user-attachments/assets/ec1e2647-3752-4334-aaf3-637491dd9607)
 # How to attribute Amazon EMR costs to your end-users
 
 This project is about a chargeback model that can be used to track and allocate the costs of Spark workloads running on Amazon EMR on EC2 clusters. We describe an approach that assigns Amazon EMR costs to different jobs, teams, or lines of business. 
@@ -37,36 +37,38 @@ git clone git@github.com:aws-samples/attribute-amazon-emr-costs-to-your-end-user
     5. tbl_emrinstance_usage - RDS table to store EMR cluster instances usage info
     6. emrcluster_id - EMR cluster instance id
     7. emrcluster_name - EMR cluster name
-    8. emrcluster_role - IAM role assigned to EMR cluster
-    9. emrcluster_linkedaccount - Account id under which EMR cluster is running
-    10. postgres_rds - Postgres RDS connection detail
-    11. athenapostgressecret_id – The name of the Secrets Manager key that stores the RDS Postgres database credentials
-    12. vpc_id – VPC id in which EMR cluster is configured and in which cost metering lambda would be deployed.
-    13. vpc_subnets – Subnets associated with the VPC
-    14. sg_id – Corresponding Security group id.
+    8. emrcluster_tag – Tag key assigned to EMR cluster
+    9. emrcluster_tag_value – Unique value for EMR cluster tag
+    10.emrcluster_role - IAM role assigned to EMR cluster
+    11. emrcluster_linkedaccount - Account id under which EMR cluster is running
+    12. postgres_rds - Postgres RDS connection detail
+    13. athenapostgressecret_id – The name of the Secrets Manager key that stores the RDS Postgres database credentials
+    14. vpc_id – VPC id in which EMR cluster is configured and in which cost metering lambda would be deployed.
+    15. vpc_subnets – Subnets associated with the VPC
+    16. sg_id – Corresponding Security group id.
 
 The following is a sample cdk.context.json file after being populated with the parameters
 ```
 {
-"yarn_url": "http://dummy.compute-1.amazonaws.com:8088/ws/v1/cluster/apps",
-"tbl_applicationlogs_lz": "public.emr_applications_execution_log_lz",
-"tbl_applicationlogs": "public.emr_applications_execution_log",
-"tbl_emrcost": "public.emr_cluster_usage_cost",
-"tbl_emrinstance_usage": "public.emr_cluster_instances_usage",
-"emrcluster_id": "j-xxxxxxxxxx",
-"emrcluster_name": "EMR_Cost_Measure",
-"emrcluster_role": "dt-dna-shared",
-"emrcluster_linkedaccount": "xxxxxxxxxxx",
-"postgres_rds": {
-"host": "xxxxxxxxx.amazonaws.com",
-"dbname": "postgres",
-"user": "postgresadmin",
-"secretid":"postgressecretid"
-},
-"vpc_id" : "xxxxxxxxx",
-"vpc_subnets" : "subnet-082816a60f7fea1bc",
-"sg_id" : "xxxxxxxxxx"
+  "yarn_url": "<EMR Cluster Yarn URL>",
+  "tbl_applicationlogs_lz": "public.emr_applications_execution_log_lz",
+  "tbl_applicationlogs": "public.emr_applications_execution_log",
+  "tbl_emrcost": "public.emr_cluster_usage_cost",
+  "tbl_emrinstance_usage": "public.emr_cluster_instances_usage",
+  "emrcluster_id": "<EMR Cluster ID>",
+  "emrcluster_name": "<EMR Cluster Name>",
+  "emrcluster_tag": "<EMR Cluster Tag>",
+  "emrcluster_tag_value": "<EMR Cluster Unique Tag Value>",
+  "emrcluster_role": "<EMR Cluster Service Role>",
+  "emrcluster_linkedaccount": "<EMR Cluster Linked Account>",
+  "postgres_rds": {
+    "host": "<RDS Postgres host name>",
+    "dbname": "<RDS Postgres Database Name>",
+    "user": "<RDS Postgres Login UserName>",
+    "secretid": "<AWS secret id for RDS Postgres Login password>"
+  }
 }
+
 ```
 #   Instructions needed to setup cloud 9 at least some pointers to create Enviornment
 
