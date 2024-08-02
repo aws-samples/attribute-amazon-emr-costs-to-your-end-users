@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/ec1e2647-3752-4334-aaf3-637491dd9607)
+
 # How to attribute Amazon EMR costs to your end-users
 
 This project is about a chargeback model that can be used to track and allocate the costs of Spark workloads running on Amazon EMR on EC2 clusters. We describe an approach that assigns Amazon EMR costs to different jobs, teams, or lines of business. 
