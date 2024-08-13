@@ -52,7 +52,9 @@ class CdkEMRCostStack(Stack):
         # Create policy to allow access to Cost Explorer
         cost_explorer_policy = _iam.PolicyStatement(
             actions=[
-                "ce:*",
+                #"ce:*",
+                "ce:ListCostAllocationTags",
+                "ce:GetCostAndUsage"
             ],
             resources=["*"],
             )
